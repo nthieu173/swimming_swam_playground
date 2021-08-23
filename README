@@ -1,0 +1,58 @@
+# Installation
+
+## Prerequisite
+This was tested and developed on Ubuntu, though as long as you can install and use Docker, and (optionally)
+install and use Gazebo 9, it should work.
+
+This means that theoretically you can run Docker in Linux subsystem for Windows and compile Gazebo 9
+youself on Windows, but I wouldn't recommend it.
+
+The docker image 
+
+## Install Docker
+
+Follow the instructions [here](https://docs.docker.com/engine/install/) to install Docker.
+
+## (Optional) Install Gazebo 9
+Follow the instructions [here](http://gazebosim.org/tutorials?cat=install).
+
+# Usage
+## Build the image
+```
+docker build . -t swarm
+```
+
+## Run the container
+Run the container as a daemon in the background, mounting the logs folder to /tmp/.gazebo/:
+```
+docker run -d -v="/tmp/.gazebo/:/root/.gazebo/" --name=swarm-app swarm
+```
+
+## Get the container IP
+docker inspect --format '{{ .NetworkSettings.IPAddress }}' swarm-app
+
+## Stop and re-run the container
+Whenever you build a new image, you must first stop the existing container:
+```
+docker stop swarm-app
+```
+Then remove the container:
+```
+docker rm swarm-app
+```
+Now you can run the image in a new container of the same name.
+
+## Log into the container
+You can log into the running container by running:
+```
+docker exec -it swarm-app bash
+```
+
+## (Optional) Run the gazebo client locally
+If you install Gazbo 9, you can connect to the gzserver inside the container using gzclient GUI
+by setting the address of the master URI to the container's public address.
+```
+export GAZEBO_MASTER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' swarm-app)
+export GAZEBO_MASTER_URI=$GAZEBO_MASTER_IP:11345
+gzclient --verbose
+```
